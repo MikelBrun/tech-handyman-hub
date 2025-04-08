@@ -16,18 +16,19 @@ import {
 import { Input } from "@/components/ui/input";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
-  username: z.string().min(2, { message: "Please enter your username." }),
+  username: z.string().min(2, { message: "Please enter your admin username." }),
   password: z.string().min(1, { message: "Please enter your password." }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const CustomerLogin = () => {
+const AdminLogin = () => {
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -44,14 +45,27 @@ const CustomerLogin = () => {
       // Simulate API request
       await new Promise((resolve) => setTimeout(resolve, 1500));
       
-      console.log("Login attempted with:", data.username);
+      console.log("Admin login attempted with:", data.username);
       
-      // For demo purposes, let's show error for now since we don't have backend
-      toast({
-        title: "Login Failed",
-        description: "This is a demo. Customer login functionality will be implemented in the future.",
-        variant: "destructive",
-      });
+      // For demo purposes, automatically log in with any credentials
+      if (data.username === "admin" && data.password === "admin") {
+        // Set session or token here in a real app
+        localStorage.setItem("adminAuthenticated", "true");
+        
+        toast({
+          title: "Login Successful",
+          description: "Welcome to the admin dashboard.",
+        });
+        
+        // Redirect to admin dashboard
+        navigate("/admin/dashboard");
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Invalid credentials. For demo, use username 'admin' and password 'admin'.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error logging in:", error);
       toast({
@@ -74,13 +88,15 @@ const CustomerLogin = () => {
               <div className="text-center mb-6">
                 <div className="inline-block bg-tech-blue text-white p-3 rounded-full mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
+                    <path d="M14 22h5a2 2 0 0 0 2-2V7l-5-5H5a2 2 0 0 0-2 2v4"></path>
+                    <path d="M14 2v5h5"></path>
+                    <circle cx="8" cy="16" r="5"></circle>
+                    <path d="m6 18 4-4"></path>
                   </svg>
                 </div>
-                <h1 className="text-2xl font-bold text-gray-900">Customer Login</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
                 <p className="text-gray-600 mt-2">
-                  Access your account to view inquiries, estimates, and invoices.
+                  Access the admin dashboard to manage inquiries and customers.
                 </p>
               </div>
               
@@ -93,7 +109,7 @@ const CustomerLogin = () => {
                       <FormItem>
                         <FormLabel>Username</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter your username" {...field} />
+                          <Input placeholder="Enter admin username" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -107,18 +123,12 @@ const CustomerLogin = () => {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input type="password" placeholder="Enter your password" {...field} />
+                          <Input type="password" placeholder="Enter password" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
-                  <div className="text-right">
-                    <Link to="/forgot-password" className="text-sm text-tech-blue hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
                   
                   <Button 
                     type="submit" 
@@ -127,22 +137,12 @@ const CustomerLogin = () => {
                   >
                     {isLoggingIn ? "Logging in..." : "Log In"}
                   </Button>
+                  
+                  <div className="text-center text-sm text-gray-600 mt-2">
+                    <p>Demo credentials: username "admin" / password "admin"</p>
+                  </div>
                 </form>
               </Form>
-              
-              <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-                <p className="text-gray-600 text-sm">
-                  Don't have an account? Submit an inquiry and we'll create one for you.
-                </p>
-                <Link to="/inquiry">
-                  <Button 
-                    variant="link" 
-                    className="text-tech-blue hover:text-tech-darkblue mt-2"
-                  >
-                    Submit an Inquiry
-                  </Button>
-                </Link>
-              </div>
             </div>
           </div>
         </div>
@@ -152,4 +152,4 @@ const CustomerLogin = () => {
   );
 };
 
-export default CustomerLogin;
+export default AdminLogin;
